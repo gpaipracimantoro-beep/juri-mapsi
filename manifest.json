@@ -1,0 +1,25 @@
+{
+  "name": "Penilaian Juri SIAP MAPSI",
+  "short_name": "Juri MAPSI",
+  "description": "Portal Penilaian Juri Offline-First MAPSI Pracimantoro",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f0f4f8",
+  "theme_color": "#2d6a4f",
+  "icons": [
+    {
+      "src": "https://lh3.googleusercontent.com/d/1o1BJzHJysMAUjTTS1Liv2_K3BTn4epCi",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/1o1BJzHJysMAUjTTS1Liv2_K3BTn4epCi",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
