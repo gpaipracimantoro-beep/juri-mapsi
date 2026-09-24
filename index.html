@@ -41,12 +41,24 @@
     .tab-juri-btn.active {
       background: #005f73 !important; color: white !important;
     }
+
+    /* Style Bar Batal Hadir Identik Portal SIAP MAPSI */
+    #previewBatalHadir::-webkit-scrollbar { display: none; }
+    .chip-batal {
+      display: inline-flex; align-items: center; gap: 5px; background: white; border: 1px solid #f1c0c0;
+      border-radius: 12px; padding: 3px 10px; font-size: 0.75rem; white-space: nowrap; flex-shrink: 0;
+    }
+    .chip-batal .no-undi { color: #c1121f; font-weight: 700; }
+    .chip-batal .kategori { font-size: 0.65rem; padding: 1px 5px; border-radius: 8px; font-weight: 700; }
+    .chip-batal .kat-PA { background: rgba(10,147,150,0.15); color: #005f73; }
+    .chip-batal .kat-PI { background: rgba(230,57,70,0.15); color: #d90429; }
+    .chip-batal .kat-TIM { background: rgba(233,216,166,0.5); color: #333; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- Status Sinkronisasi -->
+  <!-- Indikator Sinkronisasi -->
   <div id="statusBar" class="status-bar sync-green">
     <span id="statusText"><i class="fa-solid fa-circle-check"></i> Seluruh data telah tersinkronisasi aman ke Google Sheets</span>
     <button id="btnSync" class="btn-sync" onclick="sinkronkanKeGAS()" style="display: none;">
@@ -54,7 +66,7 @@
     </button>
   </div>
 
-  <!-- Panel Login Awal (Online) -->
+  <!-- Sesi 1: Login & Unduh Data Cabang (Online 1x) -->
   <div id="panelLogin" class="card">
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://lh3.googleusercontent.com/d/1o1BJzHJysMAUjTTS1Liv2_K3BTn4epCi" alt="Logo MAPSI" style="width: 140px; margin-bottom: 10px;">
@@ -87,7 +99,7 @@
     </button>
   </div>
 
-  <!-- Panel Penilaian (IndexedDB) -->
+  <!-- Sesi 2: Form Penilaian Persis SIAP MAPSI -->
   <div id="panelPenilaian" class="card" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f3f5; padding-bottom: 12px; margin-bottom: 15px;">
       <div>
@@ -97,6 +109,25 @@
       <button onclick="keluarSesi()" style="background: transparent; border: 1px solid #e63946; color: #e63946; padding: 6px 12px; font-size: 0.8rem;">
         <i class="fa-solid fa-arrow-right-from-bracket"></i> Ganti Cabang
       </button>
+    </div>
+
+    <!-- 1. BAR MERAH PESERTA BATAL HADIR (IDENTIK PORTAL) -->
+    <div id="panelBatalHadir" style="display: none; margin-bottom: 15px;">
+      <div id="barBatalHadir" onclick="toggleDetailBatalHadir()" 
+           style="background: linear-gradient(90deg, #fff5f5, #ffe0e0); border: 1px solid #f1c0c0; border-left: 4px solid #e63946; border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+          <i class="fa-solid fa-user-slash" style="color: #e63946; font-size: 0.9rem;"></i>
+          <span style="color: #c1121f; font-weight: 700; font-size: 0.8rem; white-space: nowrap;">Batal Hadir</span>
+          <span id="badgeJumlahBatal" style="background: #e63946; color: white; padding: 1px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">0</span>
+        </div>
+        <div id="previewBatalHadir" style="flex: 1; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 2px 0;"></div>
+        <i id="iconExpandBatal" class="fa-solid fa-chevron-down" style="color: #c1121f; font-size: 0.75rem; transition: transform 0.3s; flex-shrink: 0;"></i>
+      </div>
+      
+      <!-- Detail Dropdown Batal Hadir -->
+      <div id="detailBatalHadir" style="display: none; margin-top: 6px; background: white; border: 1px solid #f1c0c0; border-radius: 8px; overflow: hidden;">
+        <div id="tabelBatalHadirContainer" style="max-height: 200px; overflow-y: auto;"></div>
+      </div>
     </div>
 
     <form id="formPenilaian" onsubmit="simpanNilaiKeIndexedDB(event)">
@@ -120,15 +151,9 @@
         </div>
       </div>
 
-      <!-- Preview Biodata Peserta -->
+      <!-- 2. BIODATA VALID TANPA NAMA & TANPA ASAL SEKOLAH (IDENTIK PORTAL) -->
       <div id="boxPeserta" style="display: none; background: rgba(0,95,115,0.08); padding: 12px 15px; border-radius: 8px; border-left: 4px solid #0a9396; margin: 15px 0; font-size: 0.95rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span><i class="fa-solid fa-user-shield" style="color: #005f73;"></i> <strong id="lblNama">-</strong> (<span id="lblSekolah">-</span>)</span>
-          <span id="lblBadgeJk" class="badge-pa">PA</span>
-        </div>
-        <div id="boxBatalStatus" style="margin-top: 8px; display: none; background: #fee2e2; color: #991b1b; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
-          ⛔ PESERTA BATAL / SAKIT (Penilaian dikunci oleh panitia)
-        </div>
+        <div id="biodataText"></div>
       </div>
 
       <!-- Wadah Rubrik Nilai -->
@@ -170,15 +195,15 @@
 <script>
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxOUGtDF4ASiKAg7CWvQtF3Flf-sAPH9ukkp7dQmtYagnaWsaXF3-t85eVUJHL4Y6Ql4A/exec";
 
-  // Dexie Schema: noUndi dan id dijadikan index utama. isSynced berupa integer: 0 = belum sinkron, 1 = sudah sinkron
   const db = new Dexie("SiapMapsiJuriDB_v2");
   db.version(1).stores({
-    peserta: "noUndi, nama, sekolah, jk, hadir",
+    peserta: "noUndi, nama, sekolah, jk, hadir, catatanHadir",
     nilai_offline: "id, cabang, noUndi, jk, total, isSynced"
   });
 
   let sessionCabang = localStorage.getItem("sesi_cabang") || "";
   let pesertaAktifValid = null;
+  let isDetailBatalTerbuka = false;
 
   const JUKNIS = {
     wudu: [ { id: 'w1', max: 5, teks: '1. Mencuci tangan' }, { id: 'w2', max: 5, teks: '2. Berkumur' }, { id: 'w3', max: 5, teks: '3. Membersihkan lubang hidung' }, { id: 'w4', max: 15, teks: '4. Membaca niat (jahr)' }, { id: 'w5', max: 10, teks: '5. Membasuh muka' }, { id: 'w6', max: 10, teks: '6. Tangan sampai siku' }, { id: 'w7', max: 10, teks: '7. Mengusap kepala' }, { id: 'w8', max: 10, teks: '8. Membasuh telinga' }, { id: 'w9', max: 10, teks: '9. Membasuh kaki' }, { id: 'w10', max: 10, teks: '10. Tertib' }, { id: 'w11', max: 10, teks: '11. Doa setelah wudu' } ],
@@ -239,7 +264,6 @@
     }
   };
 
-  // Unduh data awal (Solusi Kendala 1: Timeout handling & explicit response check)
   async function unduhDataCabang() {
     const cabang = document.getElementById("selCabang").value;
     const pin = document.getElementById("inputPin").value.trim();
@@ -258,7 +282,7 @@
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 detik timeout
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       const res = await fetch(GAS_URL, {
         method: "POST",
@@ -270,12 +294,7 @@
       clearTimeout(timeoutId);
 
       const textRes = await res.text();
-      let data;
-      try {
-        data = JSON.parse(textRes);
-      } catch (errJson) {
-        throw new Error("Respon server tidak valid. Pastikan deployment GAS disetel ke 'Anyone'.");
-      }
+      let data = JSON.parse(textRes);
 
       if (data.status === "success") {
         await db.peserta.clear();
@@ -308,7 +327,72 @@
     }
 
     renderFormNilaiDinamis(cabang);
+    muatDaftarBatalHadirLokal();
     perbaruiStatusSinkronisasi();
+  }
+
+  // Muat daftar peserta batal hadir langsung dari IndexedDB lokal
+  async function muatDaftarBatalHadirLokal() {
+    const allPeserta = await db.peserta.toArray();
+    const batalList = allPeserta.filter(p => String(p.hadir || "").toUpperCase() === "BATAL");
+    
+    const panel = document.getElementById('panelBatalHadir');
+    const badge = document.getElementById('badgeJumlahBatal');
+    const preview = document.getElementById('previewBatalHadir');
+    const containerTabel = document.getElementById('tabelBatalHadirContainer');
+
+    if (!batalList || batalList.length === 0) {
+      panel.style.display = 'none';
+      return;
+    }
+
+    panel.style.display = 'block';
+    badge.innerText = batalList.length;
+
+    let chipHtml = '';
+    batalList.forEach(p => {
+      let katClass = p.jk === 'L' ? 'kat-PA' : (p.jk === 'P' ? 'kat-PI' : 'kat-TIM');
+      let katLabel = p.jk === 'L' ? 'PA' : (p.jk === 'P' ? 'PI' : 'TIM');
+      chipHtml += `
+        <div class="chip-batal">
+          <span class="no-undi">${p.noUndi}</span>
+          <span class="kategori ${katClass}">${katLabel}</span>
+          <span style="color: #444; max-width: 140px; overflow: hidden; text-overflow: ellipsis;">${p.nama}</span>
+        </div>`;
+    });
+    preview.innerHTML = chipHtml;
+
+    let htmlTabel = `
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; margin: 0;">
+        <thead>
+          <tr style="background: #fff5f5; border-bottom: 1px solid #f1c0c0; color: #c1121f;">
+            <th style="padding: 6px; text-align: center;">No. Undi</th>
+            <th style="padding: 6px; text-align: left;">Nama Peserta</th>
+            <th style="padding: 6px; text-align: center;">L/P</th>
+            <th style="padding: 6px; text-align: left;">Catatan Pendaftaran Ulang</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    
+    batalList.forEach(p => {
+      htmlTabel += `
+        <tr style="border-bottom: 1px solid #f1f3f5;">
+          <td style="padding: 6px; text-align: center; font-weight: bold; color: #c1121f;">${p.noUndi}</td>
+          <td style="padding: 6px; font-weight: 500;">${p.nama}</td>
+          <td style="padding: 6px; text-align: center;">${p.jk === 'L' ? 'PA' : (p.jk === 'P' ? 'PI' : 'TIM')}</td>
+          <td style="padding: 6px; color: #856404;">${p.catatanHadir || '-'}</td>
+        </tr>`;
+    });
+    htmlTabel += `</tbody></table>`;
+    containerTabel.innerHTML = htmlTabel;
+  }
+
+  function toggleDetailBatalHadir() {
+    const detail = document.getElementById('detailBatalHadir');
+    const icon = document.getElementById('iconExpandBatal');
+    isDetailBatalTerbuka = !isDetailBatalTerbuka;
+    detail.style.display = isDetailBatalTerbuka ? 'block' : 'none';
+    icon.style.transform = isDetailBatalTerbuka ? 'rotate(180deg)' : 'rotate(0deg)';
   }
 
   function renderFormNilaiDinamis(cabang) {
@@ -381,7 +465,6 @@
     }
   }
 
-  // Solusi Kendala 3: Perubahan nomor undian mereset validasi tanpa mengunci input nomor
   function perubahanInputIdentitas() {
     kunciFormSkor(true);
     document.getElementById('boxPeserta').style.display = 'none';
@@ -396,13 +479,12 @@
     document.getElementById('valCatatan').value = "";
   }
 
-  // Cek peserta dari IndexedDB lokal
+  // Cek peserta lokal - MENYEMBUNYIKAN NAMA SISWA & NAMA SEKOLAH PERSIS PORTAL MAPSI
   async function cekPesertaLokal() {
     const noUndi = document.getElementById('valNoUndi').value.trim();
     const jk = document.getElementById('valJk').value.trim();
     const box = document.getElementById('boxPeserta');
-    const boxBatal = document.getElementById('boxBatalStatus');
-    const badgeJk = document.getElementById('lblBadgeJk');
+    const textEl = document.getElementById('biodataText');
 
     if (!noUndi) {
       Swal.fire('Perhatian', 'Masukkan Nomor Undian peserta!', 'warning');
@@ -413,7 +495,6 @@
       return;
     }
 
-    // Normalisasi pencarian string no undian
     const allPeserta = await db.peserta.toArray();
     const p = allPeserta.find(item => String(item.noUndi).trim() === String(noUndi).trim());
     const matchJk = (jk === 'Tim') ? true : (p && p.jk === jk);
@@ -421,25 +502,35 @@
     if (p && matchJk) {
       pesertaAktifValid = p;
       box.style.display = 'block';
-      document.getElementById('lblNama').innerText = p.nama;
-      document.getElementById('lblSekolah').innerText = p.sekolah;
-
-      badgeJk.innerText = p.jk === 'L' ? 'PA' : (p.jk === 'P' ? 'PI' : 'TIM');
-      badgeJk.className = p.jk === 'L' ? 'badge-pa' : (p.jk === 'P' ? 'badge-pi' : 'badge-tim');
 
       if (p.hadir === "BATAL") {
-        boxBatal.style.display = "block";
+        box.style.borderLeftColor = "#d90429";
+        box.style.background = "#fff5f5";
+        textEl.innerHTML = `
+          <i class="fa-solid fa-user-slash" style="color: #d90429;"></i> 
+          <strong style="color: #d90429;">PESERTA BATAL HADIR</strong> | No. Undi: <strong>${noUndi}</strong> | Status: <strong>SAKIT / BATAL</strong>`;
         kunciFormSkor(true);
         Swal.fire({
           icon: 'error',
-          title: '⛔ PESERTA BATAL / SAKIT',
-          text: `Peserta ${p.nama} dilaporkan batal hadir saat daftar ulang.`
+          title: '⛔ PESERTA BATAL HADIR',
+          text: `Peserta dengan No. Undian ${noUndi} dilaporkan BATAL HADIR pada saat daftar ulang.`
         });
       } else {
-        boxBatal.style.display = "none";
+        box.style.borderLeftColor = "#0a9396";
+        box.style.background = "rgba(0,95,115,0.08)";
+        
+        let labelKat = p.jk === 'L' ? 'Putra' : (p.jk === 'P' ? 'Putri' : 'Tim/Regu');
+        
+        // FORMAT IDENTIK PORTAL SIAP MAPSI
+        textEl.innerHTML = `
+          <i class="fa-solid fa-user-shield" style="color: #005f73;"></i> <strong>Data Peserta Valid</strong> 
+          <span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin: 0 4px;"><i class="fa-solid fa-check"></i> HADIR</span> 
+          | <i class="fa-solid fa-ticket" style="color: #0a9396;"></i> No. Undi: <strong>${noUndi}</strong> 
+          | <i class="fa-solid fa-tag" style="color: #6c757d;"></i> ${sessionCabang} (${labelKat})`;
+
         kunciFormSkor(false);
         await muatNilaiLokalJikaAda(p.noUndi, p.jk);
-        Toast.fire({ icon: 'success', title: `Data ${p.nama} valid!` });
+        Toast.fire({ icon: 'success', title: `Data Kafilah No. ${noUndi} Valid!` });
       }
     } else {
       box.style.display = 'none';
@@ -475,7 +566,6 @@
     document.getElementById('totNilai').innerText = totalAkhir;
   }
 
-  // Muat nilai tersimpan dari IndexedDB lokal
   async function muatNilaiLokalJikaAda(noUndi, jk) {
     const idKey = `${sessionCabang}_${String(noUndi).trim()}_${jk}`;
     const saved = await db.nilai_offline.get(idKey);
@@ -494,13 +584,12 @@
       });
       document.getElementById('valCatatan').value = saved.catatan || "";
       document.getElementById('totNilai').innerText = saved.total || "0";
-      Toast.fire({ icon: 'info', title: 'Nilai lokal peserta ini dimuat kembali' });
+      Toast.fire({ icon: 'info', title: 'Nilai tersimpan dimuat kembali' });
     } else {
       bersihkanKotakSkor();
     }
   }
 
-  // Simpan nilai ke IndexedDB (Solusi Kendala 2: isSynced disetel angka 0)
   async function simpanNilaiKeIndexedDB(e) {
     e.preventDefault();
     if (!pesertaAktifValid) {
@@ -520,7 +609,7 @@
       catatan: document.getElementById('valCatatan').value.trim(),
       total: parseFloat(document.getElementById('totNilai').innerText) || 0,
       detailScores: {},
-      isSynced: 0, // Menggunakan angka 0 agar indexing Dexie selalu valid
+      isSynced: 0,
       timestampLokal: new Date().toLocaleString("id-ID")
     };
 
@@ -531,7 +620,6 @@
       targetKeys.forEach((cat) => {
         JUKNIS[cat].forEach((k) => {
           const val = parseFloat(document.getElementById(`j${juri}_${k.id}`).value) || 0;
-          payload[`j${juri}_detail`.toLowerCase()] = payload[`j${juri}_detail`];
           payload[`j${juri}_detail`].push(val);
           payload.detailScores[`j${juri}_${k.id}`] = val;
           totJuri += val;
@@ -546,9 +634,8 @@
     }
 
     await db.nilai_offline.put(payload);
-    Swal.fire({ icon: "success", title: "Tersimpan di Laptop!", text: `Nilai No. Undi ${payload.noUndi} berhasil disimpan.`, timer: 1500, showConfirmButton: false });
+    Swal.fire({ icon: "success", title: "Tersimpan di Laptop!", text: `Nilai No. Undian ${payload.noUndi} berhasil disimpan.`, timer: 1500, showConfirmButton: false });
 
-    // Solusi Kendala 3: Reset form secara bersih agar input no undi langsung siap dipakai lagi
     resetFormSetelahSimpan();
     await perbaruiStatusSinkronisasi();
   }
@@ -571,7 +658,6 @@
     document.getElementById("valNoUndi").focus();
   }
 
-  // Solusi Kendala 2: Filter IndexedDB yang akurat (menghitung isSynced === 0)
   async function perbaruiStatusSinkronisasi() {
     const allData = await db.nilai_offline.toArray();
     const unsyncedList = allData.filter(item => item.isSynced === 0 || item.isSynced === false);
@@ -608,7 +694,6 @@
     }
   }
 
-  // Kirim data ke GAS
   async function sinkronkanKeGAS() {
     const allData = await db.nilai_offline.toArray();
     const dataBelumSync = allData.filter(item => item.isSynced === 0 || item.isSynced === false);
@@ -639,7 +724,7 @@
 
       if (hasil.status === "success") {
         for (let item of dataBelumSync) {
-          item.isSynced = 1; // Tandai sudah sinkron
+          item.isSynced = 1;
           delete item.fotoBase64;
           await db.nilai_offline.put(item);
         }
@@ -673,7 +758,6 @@
     }).then((res) => {
       if (res.isConfirmed) {
         localStorage.removeItem("sesi_cabang");
-        sessionStorage.clear();
         location.reload();
       }
     });
