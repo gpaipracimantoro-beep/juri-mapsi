@@ -29,13 +29,11 @@
     .btn-primary { background: #2d6a4f; color: white; width: 100%; }
     .btn-primary:hover { background: #1b4332; }
     .btn-sync { background: #005f73; color: white; padding: 8px 14px; font-size: 0.8rem; }
-    .btn-sync:hover { background: #0a9396; }
     
     .badge-pa { background: rgba(14,165,233,0.15); color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
     .badge-pi { background: rgba(236,72,153,0.15); color: #db2777; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
     .badge-tim { background: rgba(233,216,166,0.5); color: #333; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
 
-    /* Style Tab Juri Identik SIAP MAPSI */
     .tab-juri-btn {
       flex: 1; min-width: 120px; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer;
       border: 2px solid #005f73; background: white; color: #005f73; transition: 0.2s;
@@ -48,7 +46,7 @@
 <body>
 
 <div class="container">
-  <!-- Indikator Sinkronisasi Atas -->
+  <!-- Status Sinkronisasi -->
   <div id="statusBar" class="status-bar sync-green">
     <span id="statusText"><i class="fa-solid fa-circle-check"></i> Seluruh data telah tersinkronisasi aman ke Google Sheets</span>
     <button id="btnSync" class="btn-sync" onclick="sinkronkanKeGAS()" style="display: none;">
@@ -56,12 +54,12 @@
     </button>
   </div>
 
-  <!-- Sesi 1: Login & Unduh Data Cabang (Online 1x) -->
+  <!-- Panel Login Awal (Online) -->
   <div id="panelLogin" class="card">
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://lh3.googleusercontent.com/d/1o1BJzHJysMAUjTTS1Liv2_K3BTn4epCi" alt="Logo MAPSI" style="width: 140px; margin-bottom: 10px;">
       <h2 style="color: #005f73; font-size: 1.3rem;">Sesi Penilaian Juri MAPSI (Offline)</h2>
-      <p style="font-size: 0.85rem; color: #64748b;">Hubungkan internet untuk memuat database rubrik dan peserta cabang lomba ke laptop.</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Hubungkan internet untuk memuat database peserta cabang lomba ke laptop.</p>
     </div>
 
     <label>Pilih Cabang Lomba Anda:</label>
@@ -89,12 +87,12 @@
     </button>
   </div>
 
-  <!-- Sesi 2: Form Penilaian Persis SIAP MAPSI -->
+  <!-- Panel Penilaian (IndexedDB) -->
   <div id="panelPenilaian" class="card" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f3f5; padding-bottom: 12px; margin-bottom: 15px;">
       <div>
         <h3 id="txtCabangAktif" style="margin: 0; color: #005f73; font-size: 1.15rem;">Cabang Lomba</h3>
-        <span style="font-size: 0.75rem; color: #64748b;"><i class="fa-solid fa-hard-drive"></i> Mode: IndexedDB (Offline-Ready)</span>
+        <span style="font-size: 0.75rem; color: #64748b;"><i class="fa-solid fa-hard-drive"></i> Penyimpanan: IndexedDB (Offline-Ready)</span>
       </div>
       <button onclick="keluarSesi()" style="background: transparent; border: 1px solid #e63946; color: #e63946; padding: 6px 12px; font-size: 0.8rem;">
         <i class="fa-solid fa-arrow-right-from-bracket"></i> Ganti Cabang
@@ -102,7 +100,7 @@
     </div>
 
     <form id="formPenilaian" onsubmit="simpanNilaiKeIndexedDB(event)">
-      <!-- Identitas Peserta Lengkap dengan Tombol Cek Data Fisik -->
+      <!-- Identitas Peserta -->
       <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 5px; flex-wrap: wrap;">
         <div style="flex: 2; min-width: 140px;">
           <input type="text" id="valNoUndi" required oninput="perubahanInputIdentitas()" placeholder="Nomor Undian" style="font-weight: bold; border: 2px solid #005f73; padding: 12px; margin: 0;">
@@ -129,11 +127,11 @@
           <span id="lblBadgeJk" class="badge-pa">PA</span>
         </div>
         <div id="boxBatalStatus" style="margin-top: 8px; display: none; background: #fee2e2; color: #991b1b; padding: 6px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
-          ⛔ PESERTA BATAL / SAKIT (Penilaian dikunci oleh panitia daftar ulang)
+          ⛔ PESERTA BATAL / SAKIT (Penilaian dikunci oleh panitia)
         </div>
       </div>
 
-      <!-- Wadah Input Rubrik Nilai Dinamis Juknis -->
+      <!-- Wadah Rubrik Nilai -->
       <div id="dynamicScoreInputs" style="margin-top: 15px;"></div>
 
       <!-- Total Akumulasi -->
@@ -147,7 +145,7 @@
       <label><i class="fa-solid fa-pen-clip"></i> Catatan Juri (Opsional):</label>
       <textarea id="valCatatan" rows="2" placeholder="Tambahkan catatan tertulis terkait penampilan peserta jika ada..."></textarea>
 
-      <!-- Tombol Aksi Utama: Simpan Lokal & Sinkronkan Server -->
+      <!-- Tombol Aksi -->
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
         <button type="submit" id="btnSimpanNilai" class="btn-primary" style="padding: 14px; font-size: 0.95rem;">
           <i class="fa-solid fa-floppy-disk"></i> Simpan Nilai (Ke Laptop)
@@ -160,7 +158,7 @@
       </div>
     </form>
 
-    <!-- Tombol Pembersihan Total di Akhir Lomba -->
+    <!-- Tombol Pembersihan Total -->
     <div style="margin-top: 30px; padding-top: 20px; border-top: 2px dashed #cbd5e1; text-align: center;">
       <button type="button" onclick="resetTotalLaptopPanitera()" style="background: #1a1a2e; color: #f8fafc; padding: 10px 20px; font-size: 0.85rem;">
         <i class="fa-solid fa-broom"></i> Selesai Lomba & Bersihkan Laptop
@@ -170,13 +168,10 @@
 </div>
 
 <script>
-  // ============================================================
-  // 1. KONFIGURASI WEB APP GOOGLE APPS SCRIPT
-  // ============================================================
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbxOUGtDF4ASiKAg7CWvQtF3Flf-sAPH9ukkp7dQmtYagnaWsaXF3-t85eVUJHL4Y6Ql4A/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxOUgTDF4ASiKAg7CWvQtF3Flf-sAPH9ukkp7dQmtYagnaWsaXF3-t85eVUJHL4Y6Ql4A/exec";
 
-  // Inisialisasi IndexedDB Dexie.js
-  const db = new Dexie("SiapMapsiJuriDB");
+  // Dexie Schema: noUndi dan id dijadikan index utama. isSynced berupa integer: 0 = belum sinkron, 1 = sudah sinkron
+  const db = new Dexie("SiapMapsiJuriDB_v2");
   db.version(1).stores({
     peserta: "noUndi, nama, sekolah, jk, hadir",
     nilai_offline: "id, cabang, noUndi, jk, total, isSynced"
@@ -185,9 +180,6 @@
   let sessionCabang = localStorage.getItem("sesi_cabang") || "";
   let pesertaAktifValid = null;
 
-  // ============================================================
-  // 2. MASTER RUBRIK JUKNIS MAPSI (PERSIS DARI SIAP MAPSI)
-  // ============================================================
   const JUKNIS = {
     wudu: [ { id: 'w1', max: 5, teks: '1. Mencuci tangan' }, { id: 'w2', max: 5, teks: '2. Berkumur' }, { id: 'w3', max: 5, teks: '3. Membersihkan lubang hidung' }, { id: 'w4', max: 15, teks: '4. Membaca niat (jahr)' }, { id: 'w5', max: 10, teks: '5. Membasuh muka' }, { id: 'w6', max: 10, teks: '6. Tangan sampai siku' }, { id: 'w7', max: 10, teks: '7. Mengusap kepala' }, { id: 'w8', max: 10, teks: '8. Membasuh telinga' }, { id: 'w9', max: 10, teks: '9. Membasuh kaki' }, { id: 'w10', max: 10, teks: '10. Tertib' }, { id: 'w11', max: 10, teks: '11. Doa setelah wudu' } ],
     salat: [ { id: 's1', max: 10, teks: '1. Berdiri, Niat, Takbir' }, { id: 's2', max: 7, teks: '2. Angkat Tangan & Sedekap' }, { id: 's3', max: 10, teks: '3. Doa Iftitah' }, { id: 's4', max: 58, teks: '4. Surah Al-Fatihah' }, { id: 's5', max: 40, teks: '5. Surah Ad-Duha' }, { id: 's6', max: 10, teks: '6. Gerakan & Bacaan Rukuk' }, { id: 's7', max: 10, teks: '7. Gerakan & Bacaan I\'tidal' }, { id: 's8', max: 10, teks: '8. Gerakan & Bacaan Sujud 1' }, { id: 's9', max: 10, teks: '9. Intiqal sblm duduk' }, { id: 's10', max: 5, teks: '10. Duduk iftirasy' }, { id: 's11', max: 10, teks: '11. Bacaan Rabbighfirli...' }, { id: 's12', max: 10, teks: '12. Gerakan & Bacaan Sujud 2' }, { id: 's13', max: 50, teks: '13. Tasyahud, Salawat, Doa' }, { id: 's14', max: 10, teks: '14. Salam & Menoleh' } ],
@@ -236,9 +228,6 @@
     'Seni Musik Rebana': { keys: ['rebana_klasik', 'rebana_modern'], titles: ['A. REBANA KLASIK (WAJIB)', 'B. REBANA MODERN (PILIHAN)'] }
   };
 
-  // ============================================================
-  // 3. LOGIKA APLIKASI
-  // ============================================================
   window.onload = async () => {
     if (sessionCabang) {
       tampilkanPanelPenilaian(sessionCabang);
@@ -250,6 +239,7 @@
     }
   };
 
+  // Unduh data awal (Solusi Kendala 1: Timeout handling & explicit response check)
   async function unduhDataCabang() {
     const cabang = document.getElementById("selCabang").value;
     const pin = document.getElementById("inputPin").value.trim();
@@ -259,16 +249,33 @@
       return;
     }
 
-    Swal.fire({ title: "Mengunduh Data...", html: "Menyalin database peserta ke memori laptop...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    Swal.fire({ 
+      title: "Mengunduh Data...", 
+      html: "Menyalin database peserta dari Google Sheets ke memori laptop...<br><small>Mohon tunggu sebentar...</small>", 
+      allowOutsideClick: false, 
+      didOpen: () => Swal.showLoading() 
+    });
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000); // 25 detik timeout
+
       const res = await fetch(GAS_URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         redirect: "follow",
+        signal: controller.signal,
         body: JSON.stringify({ action: "ambilDataAwalJuri", cabang: cabang, pin: pin })
       });
-      const data = await res.json();
+      clearTimeout(timeoutId);
+
+      const textRes = await res.text();
+      let data;
+      try {
+        data = JSON.parse(textRes);
+      } catch (errJson) {
+        throw new Error("Respon server tidak valid. Pastikan deployment GAS disetel ke 'Anyone'.");
+      }
 
       if (data.status === "success") {
         await db.peserta.clear();
@@ -276,13 +283,13 @@
         localStorage.setItem("sesi_cabang", cabang);
         sessionCabang = cabang;
 
-        Swal.fire("Sesi Siap!", `Berhasil mengunduh ${data.peserta.length} peserta. Form penilaian identik SIAP MAPSI siap digunakan secara offline.`, "success");
+        Swal.fire("Sesi Berhasil Dimuat!", `Berhasil mengunduh ${data.peserta.length} data peserta. Laptop Anda sekarang siap menilai secara offline.`, "success");
         tampilkanPanelPenilaian(cabang);
       } else {
-        Swal.fire("Akses Ditolak", data.message, "error");
+        Swal.fire("Akses Ditolak", data.message || "PIN tidak sesuai.", "error");
       }
     } catch (e) {
-      Swal.fire("Koneksi Gagal", "Gagal menghubungi server. Pastikan terhubung internet untuk membuka sesi pertama kali.", "error");
+      Swal.fire("Koneksi Gagal", e.message || "Gagal menghubungi Google Apps Script. Pastikan internet aktif dan URL deployment benar.", "error");
     }
   }
 
@@ -291,7 +298,6 @@
     document.getElementById("panelPenilaian").style.display = "block";
     document.getElementById("txtCabangAktif").innerText = cabang;
 
-    // Atur dropdown jenis kelamin sesuai cabang
     const elJk = document.getElementById('valJk');
     if (cabang === 'Keterampilan Azan dan Iqamah') {
       elJk.value = 'L'; elJk.disabled = true;
@@ -302,9 +308,9 @@
     }
 
     renderFormNilaiDinamis(cabang);
+    perbaruiStatusSinkronisasi();
   }
 
-  // Render form rubrik nilai identik portal SIAP MAPSI
   function renderFormNilaiDinamis(cabang) {
     const container = document.getElementById('dynamicScoreInputs');
     const conf = CABANG_CONFIG[cabang];
@@ -375,14 +381,22 @@
     }
   }
 
-  // Jika nomor undian atau kategori diubah ketikan/pilihannya, kunci form kembali
+  // Solusi Kendala 3: Perubahan nomor undian mereset validasi tanpa mengunci input nomor
   function perubahanInputIdentitas() {
     kunciFormSkor(true);
     document.getElementById('boxPeserta').style.display = 'none';
     pesertaAktifValid = null;
+    bersihkanKotakSkor();
   }
 
-  // Dipanggil saat tombol "🔍 Cek Data" diklik
+  function bersihkanKotakSkor() {
+    const inputs = document.querySelectorAll('#dynamicScoreInputs input[type="number"]');
+    inputs.forEach(input => input.value = "");
+    document.getElementById('totNilai').innerText = "0";
+    document.getElementById('valCatatan').value = "";
+  }
+
+  // Cek peserta dari IndexedDB lokal
   async function cekPesertaLokal() {
     const noUndi = document.getElementById('valNoUndi').value.trim();
     const jk = document.getElementById('valJk').value.trim();
@@ -399,8 +413,9 @@
       return;
     }
 
-    const p = await db.peserta.get(noUndi);
-    // Verifikasi apakah gender sesuai dengan data terdaftar
+    // Normalisasi pencarian string no undian
+    const allPeserta = await db.peserta.toArray();
+    const p = allPeserta.find(item => String(item.noUndi).trim() === String(noUndi).trim());
     const matchJk = (jk === 'Tim') ? true : (p && p.jk === jk);
 
     if (p && matchJk) {
@@ -418,27 +433,23 @@
         Swal.fire({
           icon: 'error',
           title: '⛔ PESERTA BATAL / SAKIT',
-          text: `Peserta atas nama ${p.nama} dilaporkan batal hadir saat daftar ulang. Penilaian dikunci.`
+          text: `Peserta ${p.nama} dilaporkan batal hadir saat daftar ulang.`
         });
       } else {
         boxBatal.style.display = "none";
         kunciFormSkor(false);
-        muatNilaiLokalJikaAda(p.noUndi, p.jk);
-        Swal.fire({
-          icon: 'success',
-          title: 'Data Valid!',
-          text: `Silakan beri penilaian untuk ${p.nama} (${p.sekolah}).`,
-          timer: 1200,
-          showConfirmButton: false
-        });
+        await muatNilaiLokalJikaAda(p.noUndi, p.jk);
+        Toast.fire({ icon: 'success', title: `Data ${p.nama} valid!` });
       }
     } else {
       box.style.display = 'none';
       pesertaAktifValid = null;
       kunciFormSkor(true);
-      Swal.fire('Data Tidak Ditemukan', `Nomor Undian ${noUndi} dengan kategori tersebut tidak terdaftar pada cabang ${sessionCabang}.`, 'error');
+      Swal.fire('Data Tidak Ditemukan', `Nomor Undian ${noUndi} kategori '${jk}' tidak terdaftar pada cabang ${sessionCabang}.`, 'error');
     }
   }
+
+  const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 2000, timerProgressBar: true });
 
   function hitungTotalDinamis(el) {
     if (el && el.value !== '') {
@@ -464,8 +475,9 @@
     document.getElementById('totNilai').innerText = totalAkhir;
   }
 
+  // Muat nilai tersimpan dari IndexedDB lokal
   async function muatNilaiLokalJikaAda(noUndi, jk) {
-    const idKey = `${sessionCabang}_${noUndi}_${jk}`;
+    const idKey = `${sessionCabang}_${String(noUndi).trim()}_${jk}`;
     const saved = await db.nilai_offline.get(idKey);
     const conf = CABANG_CONFIG[sessionCabang];
     const juriArray = conf.isSplitJuri ? [1, 2, 3, 4] : [1, 2, 3];
@@ -476,29 +488,19 @@
         targetKeys.forEach((cat) => {
           JUKNIS[cat].forEach((k) => {
             const el = document.getElementById(`j${juri}_${k.id}`);
-            if (el) el.value = saved.detailScores[`j${juri}_${k.id}`] || "";
+            if (el) el.value = (typeof saved.detailScores[`j${juri}_${k.id}`] !== 'undefined') ? saved.detailScores[`j${juri}_${k.id}`] : "";
           });
         });
       });
       document.getElementById('valCatatan').value = saved.catatan || "";
       document.getElementById('totNilai').innerText = saved.total || "0";
+      Toast.fire({ icon: 'info', title: 'Nilai lokal peserta ini dimuat kembali' });
     } else {
-      // Kosongkan form rubrik
-      juriArray.forEach((juri) => {
-        const targetKeys = conf.isSplitJuri ? conf.juriRules[juri-1].keys : conf.keys;
-        targetKeys.forEach((cat) => {
-          JUKNIS[cat].forEach((k) => {
-            const el = document.getElementById(`j${juri}_${k.id}`);
-            if (el) el.value = "";
-          });
-        });
-      });
-      document.getElementById('valCatatan').value = "";
-      document.getElementById('totNilai').innerText = "0";
+      bersihkanKotakSkor();
     }
   }
 
-  // Simpan nilai rubrik ke IndexedDB
+  // Simpan nilai ke IndexedDB (Solusi Kendala 2: isSynced disetel angka 0)
   async function simpanNilaiKeIndexedDB(e) {
     e.preventDefault();
     if (!pesertaAktifValid) {
@@ -511,14 +513,14 @@
     let detailScores = {};
 
     let payload = {
-      id: `${sessionCabang}_${pesertaAktifValid.noUndi}_${pesertaAktifValid.jk}`,
+      id: `${sessionCabang}_${String(pesertaAktifValid.noUndi).trim()}_${pesertaAktifValid.jk}`,
       cabang: sessionCabang,
-      noUndi: pesertaAktifValid.noUndi,
+      noUndi: String(pesertaAktifValid.noUndi).trim(),
       jk: pesertaAktifValid.jk,
       catatan: document.getElementById('valCatatan').value.trim(),
       total: parseFloat(document.getElementById('totNilai').innerText) || 0,
       detailScores: {},
-      isSynced: false,
+      isSynced: 0, // Menggunakan angka 0 agar indexing Dexie selalu valid
       timestampLokal: new Date().toLocaleString("id-ID")
     };
 
@@ -529,6 +531,7 @@
       targetKeys.forEach((cat) => {
         JUKNIS[cat].forEach((k) => {
           const val = parseFloat(document.getElementById(`j${juri}_${k.id}`).value) || 0;
+          payload[`j${juri}_detail`.toLowerCase()] = payload[`j${juri}_detail`];
           payload[`j${juri}_detail`].push(val);
           payload.detailScores[`j${juri}_${k.id}`] = val;
           totJuri += val;
@@ -543,21 +546,37 @@
     }
 
     await db.nilai_offline.put(payload);
-    Swal.fire({ icon: "success", title: "Tersimpan di Laptop!", timer: 1200, showConfirmButton: false });
+    Swal.fire({ icon: "success", title: "Tersimpan di Laptop!", text: `Nilai No. Undi ${payload.noUndi} berhasil disimpan.`, timer: 1500, showConfirmButton: false });
 
-    // Reset Form untuk peserta berikutnya
-    document.getElementById("formPenilaian").reset();
-    document.getElementById("boxPeserta").style.display = "none";
-    document.getElementById("totNilai").innerText = "0";
-    kunciFormSkor(true);
-    pesertaAktifValid = null;
-
+    // Solusi Kendala 3: Reset form secara bersih agar input no undi langsung siap dipakai lagi
+    resetFormSetelahSimpan();
     await perbaruiStatusSinkronisasi();
   }
 
-  // Memperbarui indikator status dan angka tombol sinkronisasi permanen
+  function resetFormSetelahSimpan() {
+    document.getElementById("valNoUndi").value = "";
+    document.getElementById("boxPeserta").style.display = "none";
+    document.getElementById("valCatatan").value = "";
+    document.getElementById("valFoto").value = "";
+    document.getElementById("totNilai").innerText = "0";
+
+    const elJk = document.getElementById('valJk');
+    if (sessionCabang !== 'Keterampilan Azan dan Iqamah' && sessionCabang !== 'Menyanyi Duet Lagu Religi' && sessionCabang !== 'Seni Musik Rebana') {
+      elJk.value = "";
+    }
+
+    pesertaAktifValid = null;
+    bersihkanKotakSkor();
+    kunciFormSkor(true);
+    document.getElementById("valNoUndi").focus();
+  }
+
+  // Solusi Kendala 2: Filter IndexedDB yang akurat (menghitung isSynced === 0)
   async function perbaruiStatusSinkronisasi() {
-    const unsyncedCount = await db.nilai_offline.where({ isSynced: false }).count();
+    const allData = await db.nilai_offline.toArray();
+    const unsyncedList = allData.filter(item => item.isSynced === 0 || item.isSynced === false);
+    const unsyncedCount = unsyncedList.length;
+
     const bar = document.getElementById("statusBar");
     const txt = document.getElementById("statusText");
     const btnAtas = document.getElementById("btnSync");
@@ -589,9 +608,11 @@
     }
   }
 
-  // Mengirim semua tumpukan antrean ke Google Apps Script (doPost)
+  // Kirim data ke GAS
   async function sinkronkanKeGAS() {
-    const dataBelumSync = await db.nilai_offline.where({ isSynced: false }).toArray();
+    const allData = await db.nilai_offline.toArray();
+    const dataBelumSync = allData.filter(item => item.isSynced === 0 || item.isSynced === false);
+
     if (dataBelumSync.length === 0) {
       Swal.fire('Informasi', 'Semua data penilaian di laptop ini sudah tersinkronkan ke server.', 'info');
       return;
@@ -599,7 +620,7 @@
 
     Swal.fire({ 
       title: "Menyinkronkan...", 
-      html: `Mengirim ${dataBelumSync.length} data ke database Google Sheets...<br><small>Mohon jangan menutup jendela ini.</small>`, 
+      html: `Mengirim ${dataBelumSync.length} data ke database Google Sheets...<br><small>Mohon jangan menutup jendela browser.</small>`, 
       allowOutsideClick: false, 
       didOpen: () => Swal.showLoading() 
     });
@@ -618,7 +639,7 @@
 
       if (hasil.status === "success") {
         for (let item of dataBelumSync) {
-          item.isSynced = true;
+          item.isSynced = 1; // Tandai sudah sinkron
           delete item.fotoBase64;
           await db.nilai_offline.put(item);
         }
@@ -628,7 +649,7 @@
         Swal.fire("Gagal", hasil.message, "error");
       }
     } catch (e) {
-      Swal.fire("Sinyal Belum Stabil", "Koneksi internet terputus. Seluruh nilai tetap aman di memori laptop.", "warning");
+      Swal.fire("Sinyal Belum Stabil", "Koneksi internet terputus. Seluruh nilai tetap tersimpan aman di memori laptop.", "warning");
     }
   }
 
@@ -644,7 +665,7 @@
   function keluarSesi() {
     Swal.fire({
       title: "Ganti Cabang?",
-      text: "Pastikan seluruh nilai tersimpan sudah disinkronkan ke server.",
+      text: "Pastikan nilai yang belum sinkron sudah dikirim ke server.",
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Ya, Keluar",
@@ -657,9 +678,10 @@
     });
   }
 
-  // Protokol Selesai Lomba: Bersihkan Laptop Panitera
   async function resetTotalLaptopPanitera() {
-    const unsyncedCount = await db.nilai_offline.where({ isSynced: false }).count();
+    const allData = await db.nilai_offline.toArray();
+    const unsyncedCount = allData.filter(item => item.isSynced === 0 || item.isSynced === false).length;
+
     if (unsyncedCount > 0) {
       Swal.fire({
         icon: 'error',
