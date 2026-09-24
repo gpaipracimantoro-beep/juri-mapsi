@@ -24,16 +24,13 @@
     label { font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 5px; display: block; }
     input, select, textarea { width: 100%; padding: 10px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; }
     input:focus, select:focus, textarea:focus { border-color: #2d6a4f; outline: none; }
+    input[type="number"]::placeholder { color: #cbd5e1; font-weight: 400; font-size: 1rem; }
     
     button { padding: 12px 18px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; transition: 0.2s; }
     .btn-primary { background: #2d6a4f; color: white; width: 100%; }
     .btn-primary:hover { background: #1b4332; }
     .btn-sync { background: #005f73; color: white; padding: 8px 14px; font-size: 0.8rem; }
     
-    .badge-pa { background: rgba(14,165,233,0.15); color: #0284c7; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
-    .badge-pi { background: rgba(236,72,153,0.15); color: #db2777; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
-    .badge-tim { background: rgba(233,216,166,0.5); color: #333; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
-
     .tab-juri-btn {
       flex: 1; min-width: 120px; padding: 12px; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer;
       border: 2px solid #005f73; background: white; color: #005f73; transition: 0.2s;
@@ -42,7 +39,6 @@
       background: #005f73 !important; color: white !important;
     }
 
-    /* Style Bar Batal Hadir Identik Portal SIAP MAPSI */
     #previewBatalHadir::-webkit-scrollbar { display: none; }
     .chip-batal {
       display: inline-flex; align-items: center; gap: 5px; background: white; border: 1px solid #f1c0c0;
@@ -66,7 +62,7 @@
     </button>
   </div>
 
-  <!-- Sesi 1: Login & Unduh Data Cabang (Online 1x) -->
+  <!-- Sesi 1: Login & Unduh Data Cabang -->
   <div id="panelLogin" class="card">
     <div style="text-align: center; margin-bottom: 20px;">
       <img src="https://lh3.googleusercontent.com/d/1o1BJzHJysMAUjTTS1Liv2_K3BTn4epCi" alt="Logo MAPSI" style="width: 140px; margin-bottom: 10px;">
@@ -99,7 +95,7 @@
     </button>
   </div>
 
-  <!-- Sesi 2: Form Penilaian Persis SIAP MAPSI -->
+  <!-- Sesi 2: Form Penilaian -->
   <div id="panelPenilaian" class="card" style="display: none;">
     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f3f5; padding-bottom: 12px; margin-bottom: 15px;">
       <div>
@@ -111,7 +107,7 @@
       </button>
     </div>
 
-    <!-- 1. BAR MERAH PESERTA BATAL HADIR (IDENTIK PORTAL) -->
+    <!-- Bar Merah Daftar Batal Hadir -->
     <div id="panelBatalHadir" style="display: none; margin-bottom: 15px;">
       <div id="barBatalHadir" onclick="toggleDetailBatalHadir()" 
            style="background: linear-gradient(90deg, #fff5f5, #ffe0e0); border: 1px solid #f1c0c0; border-left: 4px solid #e63946; border-radius: 8px; padding: 8px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none;">
@@ -124,7 +120,6 @@
         <i id="iconExpandBatal" class="fa-solid fa-chevron-down" style="color: #c1121f; font-size: 0.75rem; transition: transform 0.3s; flex-shrink: 0;"></i>
       </div>
       
-      <!-- Detail Dropdown Batal Hadir -->
       <div id="detailBatalHadir" style="display: none; margin-top: 6px; background: white; border: 1px solid #f1c0c0; border-radius: 8px; overflow: hidden;">
         <div id="tabelBatalHadirContainer" style="max-height: 200px; overflow-y: auto;"></div>
       </div>
@@ -151,7 +146,7 @@
         </div>
       </div>
 
-      <!-- 2. BIODATA VALID TANPA NAMA & TANPA ASAL SEKOLAH (IDENTIK PORTAL) -->
+      <!-- Informasi Peserta Tanpa Nama & Sekolah -->
       <div id="boxPeserta" style="display: none; background: rgba(0,95,115,0.08); padding: 12px 15px; border-radius: 8px; border-left: 4px solid #0a9396; margin: 15px 0; font-size: 0.95rem;">
         <div id="biodataText"></div>
       </div>
@@ -193,7 +188,7 @@
 </div>
 
 <script>
-  const GAS_URL = "https://script.google.com/macros/s/AKfycbxOUgTDF4ASiKAg7CWvQtF3Flf-sAPH9ukkp7dQmtYagnaWsaXF3-t85eVUJHL4Y6Ql4A/exec";
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxOUGtDF4ASiKAg7CWvQtF3Flf-sAPH9ukkp7dQmtYagnaWsaXF3-t85eVUJHL4Y6Ql4A/exec";
 
   const db = new Dexie("SiapMapsiJuriDB_v2");
   db.version(1).stores({
@@ -331,7 +326,6 @@
     perbaruiStatusSinkronisasi();
   }
 
-  // Muat daftar peserta batal hadir langsung dari IndexedDB lokal
   async function muatDaftarBatalHadirLokal() {
     const allPeserta = await db.peserta.toArray();
     const batalList = allPeserta.filter(p => String(p.hadir || "").toUpperCase() === "BATAL");
@@ -425,22 +419,20 @@
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:12px;">`;
 
         JUKNIS[kategoriKey].forEach((k) => {
-        html += `
-        <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1.5px solid #e2e8f0; margin-bottom: 8px;">
-          <div style="flex: 1; padding-right: 10px;">
-            <span style="font-size: 0.9rem; font-weight: 600; color: #1e293b; display: block;">${k.teks}</span>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <!-- Badge Nilai Maksimal persis portal MAPSI -->
-            <span style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
-              Max: ${k.max}
-            </span>
-            <!-- Kotak Input Angka Bersih Tanpa Teks Placeholder yang Menumpuk -->
-            <input type="number" id="j${juri}_${k.id}" data-max="${k.max}" placeholder="0" oninput="hitungTotalDinamis(this)" 
-              style="width: 75px; text-align: center; padding: 8px 4px; font-size: 1.15rem; font-weight: 700; border: 2px solid #005f73; border-radius: 6px; color: #d90429; margin: 0; background: #fff;">
-          </div>
-        </div>`;
-      });
+          html += `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 10px 14px; border-radius: 8px; border: 1.5px solid #e2e8f0; margin-bottom: 8px;">
+            <div style="flex: 1; padding-right: 10px;">
+              <span style="font-size: 0.9rem; font-weight: 600; color: #1e293b; display: block;">${k.teks}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; font-size: 0.75rem; font-weight: 700; white-space: nowrap;">
+                Max: ${k.max}
+              </span>
+              <input type="number" id="j${juri}_${k.id}" data-max="${k.max}" placeholder="0" oninput="hitungTotalDinamis(this)" 
+                style="width: 75px; text-align: center; padding: 8px 4px; font-size: 1.15rem; font-weight: 700; border: 2px solid #005f73; border-radius: 6px; color: #d90429; margin: 0; background: #fff;">
+            </div>
+          </div>`;
+        });
         html += `</div>`;
       });
 
@@ -489,7 +481,6 @@
     document.getElementById('valCatatan').value = "";
   }
 
-  // Cek peserta lokal - MENYEMBUNYIKAN NAMA SISWA & NAMA SEKOLAH PERSIS PORTAL MAPSI
   async function cekPesertaLokal() {
     const noUndi = document.getElementById('valNoUndi').value.trim();
     const jk = document.getElementById('valJk').value.trim();
@@ -531,7 +522,6 @@
         
         let labelKat = p.jk === 'L' ? 'Putra' : (p.jk === 'P' ? 'Putri' : 'Tim/Regu');
         
-        // FORMAT IDENTIK PORTAL SIAP MAPSI
         textEl.innerHTML = `
           <i class="fa-solid fa-user-shield" style="color: #005f73;"></i> <strong>Data Peserta Valid</strong> 
           <span style="background: #d4edda; color: #155724; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin: 0 4px;"><i class="fa-solid fa-check"></i> HADIR</span> 
@@ -768,6 +758,7 @@
     }).then((res) => {
       if (res.isConfirmed) {
         localStorage.removeItem("sesi_cabang");
+        sessionStorage.clear();
         location.reload();
       }
     });
