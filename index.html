@@ -673,6 +673,7 @@
     }).then((res) => {
       if (res.isConfirmed) {
         localStorage.removeItem("sesi_cabang");
+        sessionStorage.clear();
         location.reload();
       }
     });
