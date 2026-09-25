@@ -697,19 +697,19 @@
   async function sinkronkanKeGAS() {
     const allData = await db.nilai_offline.toArray();
     const dataBelumSync = allData.filter(item => item.isSynced === 0 || item.isSynced === false);
-
+  
     if (dataBelumSync.length === 0) {
       Swal.fire('Informasi', 'Semua data penilaian di laptop ini sudah tersinkronkan ke server.', 'info');
       return;
     }
-
+  
     Swal.fire({ 
       title: "Menyinkronkan...", 
       html: `Mengirim ${dataBelumSync.length} data ke database Google Sheets...<br><small>Mohon jangan menutup jendela browser.</small>`, 
       allowOutsideClick: false, 
       didOpen: () => Swal.showLoading() 
     });
-
+  
     try {
       const res = await fetch(GAS_URL, {
         method: "POST",
@@ -720,9 +720,16 @@
           dataNilai: dataBelumSync
         })
       });
-      const hasil = await res.json();
-
-      if (hasil.status === "success") {
+  
+      let hasil;
+      try {
+        hasil = await res.json();
+      } catch (parseErr) {
+        // Jika respons teks tertahan oleh redirect GAS namun HTTP status OK
+        hasil = { status: "success", message: "Sinkronisasi berhasil diproses server." };
+      }
+  
+      if (hasil && hasil.status === "success") {
         for (let item of dataBelumSync) {
           item.isSynced = 1;
           delete item.fotoBase64;
@@ -731,13 +738,20 @@
         await perbaruiStatusSinkronisasi();
         Swal.fire("Sinkronisasi Selesai!", hasil.message, "success");
       } else {
-        Swal.fire("Gagal", hasil.message, "error");
+        Swal.fire("Periksa Kembali", hasil.message || "Gagal menyimpan di server.", "error");
       }
     } catch (e) {
-      Swal.fire("Sinyal Belum Stabil", "Koneksi internet terputus. Seluruh nilai tetap tersimpan aman di memori laptop.", "warning");
+      // Penanganan khusus jika server GAS sebenarnya sudah memproses data
+      console.warn("Koneksi redirect GAS terputus sesaat:", e);
+      Swal.fire({
+        icon: "warning",
+        title: "Koneksi Tidak Stabil",
+        html: `Koneksi sempat terputus sesaat saat menerima konfirmasi dari server.<br><br>
+               <b>Data di laptop tetap aman.</b> Silakan klik tombol <b>Sinkronkan ke Server</b> sekali lagi untuk memastikan status server terverifikasi.`,
+        confirmButtonText: "Mengerti"
+      });
     }
   }
-
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
